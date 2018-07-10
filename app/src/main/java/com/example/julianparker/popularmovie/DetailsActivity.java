@@ -108,7 +108,7 @@ public class DetailsActivity extends AppCompatActivity {
                     db.movieDao().delete(movie);
                     Log.d(TAG,"The movie has been deleted:"+db.movieDao().getAll().get(0).title);
 
-                    db.close();
+                   // db.close();
 
                 }
                 else
@@ -120,7 +120,7 @@ public class DetailsActivity extends AppCompatActivity {
                     Log.d(TAG,"The movie has been added");
                     Favorite.setBackground(getDrawable(R.drawable.ic_favorite));
                     Log.d(TAG,"The icon has been changed");
-                    db.close();
+                   // db.close();
                 }
 
             }
@@ -191,7 +191,7 @@ public class DetailsActivity extends AppCompatActivity {
         Title.setText("Title: " + movie.getTitle());
         VoterAvg.setText("Voter Average: " + movie.getVoteAverage().toString());
         ReleaseDate.setText("Release Date: " + movie.getReleaseDate());
-        Picasso.get().load(movie.getPoster())
+        Picasso.get().load("http://image.tmdb.org/t/p/w185"+movie.getPoster())
                 .placeholder(R.color.colorAccent)
                 .into(Image);
         Video.setOnClickListener(new View.OnClickListener() {

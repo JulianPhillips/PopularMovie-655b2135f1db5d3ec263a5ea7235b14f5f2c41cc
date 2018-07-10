@@ -18,7 +18,7 @@ import java.util.List;
 
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>
 {
-    private List<Movie> mMovieList;
+    private ArrayList<Movie> mMovieList;
     private LayoutInflater mInflater;
     private Context mContext;
 
@@ -44,7 +44,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
 
         // This is how we use Picasso to load images from the internet.
-        Picasso.get().load(mMovieList.get(position).getPoster())
+        Picasso.get().load("http://image.tmdb.org/t/p/w185"+mMovieList.get(position).getPoster())
                 .placeholder(R.color.colorAccent)
                 .into(holder.imageView);
     }

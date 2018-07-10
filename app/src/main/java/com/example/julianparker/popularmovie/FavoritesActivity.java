@@ -1,9 +1,13 @@
 package com.example.julianparker.popularmovie;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProviders;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
@@ -18,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.julianparker.popularmovie.Database.AppDatabase;
 
@@ -35,12 +40,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class FavoritesActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     @BindView(R.id.toolbar) Toolbar toolbar;
-    private ArrayList<Movie> MoviesList = new ArrayList<Movie>();
     private static final String TAG = "FavoritesActivity";
     private MoviesAdapter mAdapter ;
+    private MovieViewModel mModel;
     @BindView(R.id.drawer_layout) DrawerLayout drawer;
-    @BindView(R.id.movie_gallery_rv)
-    RecyclerView MovieScreenRv;
+    @BindView(R.id.movie_gallery_rv) RecyclerView MovieScreenRv;
     @BindView(R.id.nav_view) NavigationView navigationView;
 
     @Override
@@ -63,26 +67,37 @@ public class FavoritesActivity extends AppCompatActivity
         // MovieScreenRv = (RecyclerView) findViewById(R.id.movie_gallery_rv);
 
 
+
+        mModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+
+        final Observer<ArrayList<Movie>> movieObserver = new Observer<ArrayList<Movie>>() {
+            @Override
+            public void onChanged(@Nullable ArrayList<Movie> movies) {
+                mAdapter.setMovieList(movies);
+            }
+        };
+
+        mModel.getCurrentMovies().observe(this,movieObserver);
+
         final AppDatabase db = Room.databaseBuilder(getApplicationContext(),
                 AppDatabase.class, "database-name").allowMainThreadQueries().build();
+
+      ArrayList<Movie> MoviesList = new ArrayList<Movie>();
 
         List<Movie> listOfMovies = db.movieDao().getAll();
         for(int i =0; i<listOfMovies.size(); i++){
 
-            Movie newMovie = new  Movie(
-                    listOfMovies.get(i).getTitle(),
-                    listOfMovies.get(i).getPoster(),
-                    listOfMovies.get(i).getDescription(),
-                    listOfMovies.get(i).getVoteAverage(),
-                    listOfMovies.get(i).getReleaseDate(),
-                    listOfMovies.get(i).getId());
 
-            MoviesList.add(newMovie);
+
+            MoviesList.add(listOfMovies.get(i));
+            Log.d("FavoriteActivity",listOfMovies.get(i).getPoster());
+
+
 
         }
 
-        mAdapter = new MoviesAdapter(this,MoviesList);
-        mAdapter.setMovieList(MoviesList);
+        mAdapter = new MoviesAdapter(this, MoviesList);
+       // mAdapter.setMovieList(MoviesList);
         GridLayoutManager layoutManager = new GridLayoutManager(this,getSpan());
         MovieScreenRv.setLayoutManager(layoutManager);
         MovieScreenRv.setHasFixedSize(true);
@@ -108,27 +123,7 @@ public class FavoritesActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.favorites, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
